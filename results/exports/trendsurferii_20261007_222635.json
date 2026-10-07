@@ -1,0 +1,70 @@
+{
+  "algorithm": "TrendSurfer II",
+  "target_depth": 3,
+  "measure": "ArrDelay",
+  "dimensions": [
+    "UniqueCarrier",
+    "Origin",
+    "Dest",
+    "DayOfWeek"
+  ],
+  "scoring_method": "euclidean",
+  "normalization_method": "zscore",
+  "nodes_opened": 202,
+  "execution_time_seconds": 0.8854,
+  "selected_path": [
+    {
+      "depth": 0,
+      "node_id": "ALL (Global)",
+      "dimensions": {},
+      "local_score": 0.0,
+      "global_score": 0.0,
+      "observations": 99690
+    },
+    {
+      "depth": 1,
+      "node_id": "UniqueCarrier=DL",
+      "dimensions": {
+        "UniqueCarrier": "DL"
+      },
+      "local_score": 7.9528,
+      "global_score": 7.9528,
+      "observations": 4125
+    },
+    {
+      "depth": 2,
+      "node_id": "DayOfWeek=7 & UniqueCarrier=DL",
+      "dimensions": {
+        "UniqueCarrier": "DL",
+        "DayOfWeek": "7"
+      },
+      "local_score": 7.6449,
+      "global_score": 9.0246,
+      "observations": 624
+    },
+    {
+      "depth": 3,
+      "node_id": "DayOfWeek=7 & Dest=ATL & UniqueCarrier=DL",
+      "dimensions": {
+        "UniqueCarrier": "DL",
+        "DayOfWeek": "7",
+        "Dest": "ATL"
+      },
+      "local_score": 0.0,
+      "global_score": 9.0246,
+      "observations": 195
+    }
+  ],
+  "final_node": {
+    "node_id": "DayOfWeek=7 & Dest=ATL & UniqueCarrier=DL",
+    "dimensions": {
+      "UniqueCarrier": "DL",
+      "DayOfWeek": "7",
+      "Dest": "ATL"
+    },
+    "local_score": 0.0,
+    "global_score": 9.0246,
+    "observations": 195
+  },
+  "exported_at": "2026-10-07T22:26:35.359882"
+}

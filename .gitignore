@@ -1,0 +1,27 @@
+# Large datasets (GitHub 100MB limit)
+data/DelayedFlights.csv
+data/*.csv.zip
+*.csv.gz
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.env
+.venv/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

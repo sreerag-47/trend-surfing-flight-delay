@@ -1,0 +1,70 @@
+{
+  "algorithm": "TrendSurfer I",
+  "target_depth": 3,
+  "measure": "ArrDelay",
+  "dimensions": [
+    "UniqueCarrier",
+    "Origin",
+    "Dest",
+    "DayOfWeek"
+  ],
+  "scoring_method": "euclidean",
+  "normalization_method": "zscore",
+  "nodes_opened": 217,
+  "execution_time_seconds": 0.6013,
+  "selected_path": [
+    {
+      "depth": 0,
+      "node_id": "ALL (Global)",
+      "dimensions": {},
+      "local_score": 0.0,
+      "global_score": 0.0,
+      "observations": 49849
+    },
+    {
+      "depth": 1,
+      "node_id": "DayOfWeek=1",
+      "dimensions": {
+        "DayOfWeek": "1"
+      },
+      "local_score": 7.599,
+      "global_score": 7.599,
+      "observations": 6611
+    },
+    {
+      "depth": 2,
+      "node_id": "DayOfWeek=1 & Origin=TPA",
+      "dimensions": {
+        "DayOfWeek": "1",
+        "Origin": "TPA"
+      },
+      "local_score": 9.9669,
+      "global_score": 9.153,
+      "observations": 53
+    },
+    {
+      "depth": 3,
+      "node_id": "DayOfWeek=1 & Origin=TPA & UniqueCarrier=WN",
+      "dimensions": {
+        "DayOfWeek": "1",
+        "Origin": "TPA",
+        "UniqueCarrier": "WN"
+      },
+      "local_score": 0.0,
+      "global_score": 9.153,
+      "observations": 53
+    }
+  ],
+  "final_node": {
+    "node_id": "DayOfWeek=1 & Origin=TPA & UniqueCarrier=WN",
+    "dimensions": {
+      "DayOfWeek": "1",
+      "Origin": "TPA",
+      "UniqueCarrier": "WN"
+    },
+    "local_score": 0.0,
+    "global_score": 9.153,
+    "observations": 53
+  },
+  "exported_at": "2026-10-07T22:00:31.791140"
+}
