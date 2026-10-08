@@ -5,6 +5,7 @@ Run with: streamlit run app.py
 
 import os
 import time
+import json
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -111,6 +112,13 @@ if target_file and os.path.exists(target_file):
         default=default_dims if default_dims else dim_options[:4]
     )
 
+    norm_method = st.sidebar.selectbox(
+        "Trend Normalization",
+        options=["zscore", "minmax", "center", "none"],
+        index=0,
+        help="zscore: zero mean & unit variance (detect shape outliers). minmax: scale to [0,1]. center: remove baseline offset. none: raw values."
+    )
+
     # Validate
     is_valid, err_msg = validate_configuration(raw_df, temp_cols, measure_col, dimension_cols)
     if not is_valid:
@@ -123,7 +131,7 @@ if target_file and os.path.exists(target_file):
         return prepare_dataframe(df_in, t_cols, m_col, d_cols)
 
     clean_df, temporal_index, prep_stats = cached_prepare(raw_df, temp_cols, measure_col, dimension_cols)
-    global_trend = compute_global_trend(clean_df, "Date", measure_col, temporal_index)
+    global_trend = compute_global_trend(clean_df, "Date", measure_col, temporal_index, normalization=norm_method)
 
     # Main Tabs
     tab_discovery, tab_compare, tab_explorer, tab_summary = st.tabs([
@@ -153,7 +161,8 @@ if target_file and os.path.exists(target_file):
                     measure_col=measure_col,
                     temporal_index=temporal_index,
                     target_depth=depth,
-                    scoring_method=scoring_method
+                    scoring_method=scoring_method,
+                    normalization=norm_method
                 )
             else:
                 result = run_trendsurfer2(
@@ -164,7 +173,8 @@ if target_file and os.path.exists(target_file):
                     measure_col=measure_col,
                     temporal_index=temporal_index,
                     target_depth=depth,
-                    scoring_method=scoring_method
+                    scoring_method=scoring_method,
+                    normalization=norm_method
                 )
             elapsed = time.perf_counter() - t0
 
@@ -205,10 +215,10 @@ if target_file and os.path.exists(target_file):
             st.dataframe(pd.DataFrame(path_rows), use_container_width=True)
 
             # JSON export
-            json_file = export_result(result)
+            export_result(result)
             st.download_button(
                 "📥 Download Result JSON",
-                data=pd.Series(result.to_dict()).to_json(indent=2),
+                data=json.dumps(result.to_dict(), indent=2),
                 file_name=f"{algorithm.lower().replace(' ', '')}_result.json",
                 mime="application/json"
             )
@@ -225,11 +235,11 @@ if target_file and os.path.exists(target_file):
 
         if st.button("Run Comparison"):
             with st.spinner("Computing comparative trajectories..."):
-                r1 = run_trendsurfer1(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth)
-                r2 = run_trendsurfer2(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth)
+                r1 = run_trendsurfer1(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth, normalization=norm_method)
+                r2 = run_trendsurfer2(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth, normalization=norm_method)
                 b_res = None
                 if include_base:
-                    b_res = run_exhaustive_search(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth, max_values_per_dim=15)
+                    b_res = run_exhaustive_search(clean_df, global_trend, dimension_cols, "Date", measure_col, temporal_index, cmp_depth, max_values_per_dim=15, normalization=norm_method)
 
             cmp_table = {
                 "Metric": [
@@ -280,7 +290,7 @@ if target_file and os.path.exists(target_file):
             st.write("")
             st.write("")
             if st.button("Explore"):
-                dim_res = explore_dimension(clean_df, explore_dim, global_trend, "Date", measure_col, temporal_index, top_n=top_k_dim)
+                dim_res = explore_dimension(clean_df, explore_dim, global_trend, "Date", measure_col, temporal_index, top_n=top_k_dim, normalization=norm_method)
                 dim_df = pd.DataFrame([{
                     "Rank": i + 1,
                     "Value": r["value"],
@@ -296,7 +306,7 @@ if target_file and os.path.exists(target_file):
         st.subheader("🏆 Top-K Discovered Unusual Trends Across Cube")
         k_count = st.slider("K Unusual Trends", 5, 20, 10)
         if st.button("Find Top-K Trends"):
-            top_k = find_top_k_unusual_trends(clean_df, dimension_cols, global_trend, "Date", measure_col, temporal_index, k=k_count)
+            top_k = find_top_k_unusual_trends(clean_df, dimension_cols, global_trend, "Date", measure_col, temporal_index, k=k_count, normalization=norm_method)
             top_df = pd.DataFrame([{
                 "Rank": i + 1,
                 "Depth": r["depth"],
@@ -318,10 +328,14 @@ if target_file and os.path.exists(target_file):
         s4.metric("Valid Cleaned Rows", f"{len(clean_df):,}")
 
         st.write("Column Types & Missing Counts:")
-        meta_table = pd.DataFrame({
-            "Data Type": summary["column_types"],
-            "Missing Count": [summary["missing_counts"].get(c, 0) for c in raw_df.columns]
-        })
+        meta_table = pd.DataFrame([
+            {
+                "Column": col,
+                "Data Type": summary["column_types"].get(col, ""),
+                "Missing Count": summary["missing_counts"].get(col, 0)
+            }
+            for col in raw_df.columns
+        ]).set_index("Column")
         st.dataframe(meta_table, use_container_width=True)
 
 else:

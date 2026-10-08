@@ -25,3 +25,12 @@ env/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Generated test / runtime exports
+results/exports/trendsurferi_20261007_*.json
+results/exports/trendsurferi_20261008_*.json
+results/exports/trendsurferii_20261007_*.json
+results/exports/trendsurferii_20261008_*.json
+!results/exports/trendsurferi_20261007_220031.json
+!results/exports/trendsurferii_20261007_220329.json
+!results/exports/trendsurferii_20261007_222635.json
